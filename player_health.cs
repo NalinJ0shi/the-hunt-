@@ -13,6 +13,10 @@ public class PlayerHealth : MonoBehaviour
     private playercontrols playerController;
     private SpriteRenderer spriteRenderer;
     
+    // Animation state name for death
+    private readonly int deathAnim = Animator.StringToHash("death");
+    private bool isDead = false;
+    
     private void Awake()
     {
         currentHealth = maxHealth;
@@ -24,7 +28,7 @@ public class PlayerHealth : MonoBehaviour
     private void Update()
     {
         // Optional health regeneration
-        if (healthRegenRate > 0 && currentHealth < maxHealth)
+        if (healthRegenRate > 0 && currentHealth < maxHealth && !isDead)
         {
             currentHealth = Mathf.Min(maxHealth, currentHealth + (int)(healthRegenRate * Time.deltaTime));
         }
@@ -32,7 +36,7 @@ public class PlayerHealth : MonoBehaviour
     
     public void TakeDamage(int damage)
     {
-        if (isInvincible) return;
+        if (isInvincible || isDead) return;
         
         currentHealth = Mathf.Max(0, currentHealth - damage);
         
@@ -82,14 +86,16 @@ public class PlayerHealth : MonoBehaviour
     
     private void Die()
     {
+        isDead = true;
+        
         // Disable player control
         if (playerController != null)
         {
             playerController.enabled = false;
         }
         
-        // You may want to add a death animation here
-        // animator.Play("death");
+        // Play death animation
+        animator.Play(deathAnim);
         
         Debug.Log("Player died!");
         
@@ -98,6 +104,8 @@ public class PlayerHealth : MonoBehaviour
     
     public void Heal(int amount)
     {
+        if (isDead) return;
+        
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
         Debug.Log($"Player healed {amount} health. Health: {currentHealth}/{maxHealth}");
     }
