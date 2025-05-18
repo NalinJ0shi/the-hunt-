@@ -53,7 +53,12 @@ public class EnemyController : MonoBehaviour
             player = GameObject.FindGameObjectWithTag("Player").transform;
         }
         
+        // Set up physics
         rb.gravityScale = 0f;
+        // Prevent rotation with both settings
+        rb.freezeRotation = true;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        
         currentHealth = maxHealth;
         
         // Debug animation clips available
@@ -68,6 +73,9 @@ public class EnemyController : MonoBehaviour
     // Make sure Update keeps running animations even when dead
     private void Update()
     {
+        // Ensure rotation stays at zero
+        transform.rotation = Quaternion.identity;
+        
         // Get player distance if we have a player
         float distanceToPlayer = 0;
         if (player != null)
@@ -152,6 +160,9 @@ public class EnemyController : MonoBehaviour
         {
             Vector2 direction = (player.position - transform.position).normalized;
             rb.MovePosition(rb.position + direction * moveSpeed * Time.fixedDeltaTime);
+            
+            // Ensure rotation remains at zero
+            rb.rotation = 0f;
         }
     }
 
@@ -295,5 +306,13 @@ public class EnemyController : MonoBehaviour
         
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+    }
+    
+    // Handle collisions to prevent rotation
+    private void OnCollisionEnter2D(Collision2D collision) 
+    {
+        // Reset rotation on collision
+        transform.rotation = Quaternion.identity;
+        rb.rotation = 0f;
     }
 }

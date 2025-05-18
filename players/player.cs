@@ -1,7 +1,6 @@
 using UnityEngine;
 
-public class playercontrols : MonoBehaviour
-{
+public class playercontrols : Singleton<playercontrols>{
     [SerializeField] private float moveSpeed = 5f;
     private Rigidbody2D rb;
     private Vector2 movement;
@@ -33,10 +32,13 @@ public class playercontrols : MonoBehaviour
     [SerializeField] private LayerMask enemyLayers; // Set this in the Inspector
     [SerializeField] private PlayerAttackHitbox attackHitbox;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = 0f;
+        // Fix rotation issue by freezing Z rotation
+        rb.freezeRotation = true;
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
